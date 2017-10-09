@@ -38,7 +38,8 @@ class classficationHw2(object):
         clf.fit(trainX, trainY)
         cvResult = clf.cv_results_
         
-        print ("cvResult : ", cvResult)
+        bestPara = clf.best_estimator_
+        print ("cvResult : ", cvResult, bestPara)
 
         '''
         i = 0
