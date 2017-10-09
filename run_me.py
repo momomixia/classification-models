@@ -4,39 +4,50 @@ import kaggle
 from sklearn.metrics import accuracy_score
 
 
-class clsregressionHw(object):
+class classficationHw2(object):
  
     def __init__(self):
       pass
   
     # Read in train and test data
     def read_image_data(self):
-        	print('Reading image data ...')
-        	temp = np.load('../../Data/data_train.npz')
-        	train_x = temp['data_train']
-        	temp = np.load('../../Data/labels_train.npz')
-        	train_y = temp['labels_train']
-        	temp = np.load('../../Data/data_test.npz')
-        	test_x = temp['data_test']
-        	return (train_x, train_y, test_x)
+        print('Reading image data ...')
+        temp = np.load('../../Data/data_train.npz')
+        train_x = temp['data_train']
+        temp = np.load('../../Data/labels_train.npz')
+        train_y = temp['labels_train']
+        temp = np.load('../../Data/data_test.npz')
+        test_x = temp['data_test']
+            
+        print (" image data shape trainX, trainY, testX: ", train_x.shape, train_y.shape, test_x.shape)
+        return (train_x, train_y, test_x)
 
 
+    #decision tree train model
     def executeTrainDT(self, data, kfold, depthLst, fileTestOutputDT):
         trainX = data[0]
         trainY = data[1]
-        testX = data[2]
+        testX = data[2]        
         
 
     def predictDifferentModels(self):
-        x = 1
+
+        dataImage = self.read_image_data()
         
+        print (" -----begin decision tree classification--------")
+        depthLst = [3, 6, 9, 12, 14]              #range(1, 20) try different alpha from test
+        kfold = 5
+        fileTestOutputDT  = "../Predictions/best_DT.csv"
+        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        
+
 
 def main():
     
-    regrHwObj = clsregressionHw()
+    classifyHwObj = classficationHw2()
     
     #for assigment querstion 1
-    
+    classifyHwObj.predictDifferentModels()
     
     
 if __name__== "__main__":
