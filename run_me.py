@@ -1,6 +1,8 @@
 # Import python modules
 import numpy as np
 import kaggle
+from sklearn.tree import DecisionTreeClassifier
+
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 
@@ -19,7 +21,7 @@ class classficationHw2(object):
         temp = np.load('../../Data/data_test.npz')
         test_x = temp['data_test']
             
-        print (" image data shape trainX, trainY, testX: ", train_x, train_x.shape, train_y.shape, test_x.shape)
+        print (" image data shape trainX, trainY, testX: ", train_x.shape, train_y.shape, test_x.shape)
         return (train_x, train_y, test_x)
 
 
@@ -31,7 +33,12 @@ class classficationHw2(object):
         trainY = data[1]
         testX = data[2]
         
-        tree_para = {'criterion':['gini','entropy'],'max_depth':[4,5,6,7,8,9,10,11,12,15,20,30,40,50,70,90,120,150]}
+        tree_para = {'criterion':['gini'],'max_depth':depthLst}
+        clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold)
+        clf.fit(trainX, trainY)
+        cvResult = clf.cv_results_
+        
+        print ("cvResult : ", cvResult)
 
         '''
         i = 0
@@ -54,7 +61,7 @@ class classficationHw2(object):
 
         dataImage = self.read_image_data()
         
-        print (" -----begin decision tree classification--------")
+        print (" -----Begin decision tree classification CV--------")
         depthLst = [3, 6, 9, 12, 14]              #range(1, 20) try different alpha from test
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
