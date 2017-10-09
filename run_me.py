@@ -2,7 +2,7 @@
 import numpy as np
 import kaggle
 from sklearn.metrics import accuracy_score
-
+from sklearn.model_selection import GridSearchCV
 
 class classficationHw2(object):
  
@@ -19,16 +19,36 @@ class classficationHw2(object):
         temp = np.load('../../Data/data_test.npz')
         test_x = temp['data_test']
             
-        print (" image data shape trainX, trainY, testX: ", train_x.shape, train_y.shape, test_x.shape)
+        print (" image data shape trainX, trainY, testX: ", train_x, train_x.shape, train_y.shape, test_x.shape)
         return (train_x, train_y, test_x)
+
+
 
 
     #decision tree train model
     def executeTrainDT(self, data, kfold, depthLst, fileTestOutputDT):
         trainX = data[0]
         trainY = data[1]
-        testX = data[2]        
+        testX = data[2]
         
+        tree_para = {'criterion':['gini','entropy'],'max_depth':[4,5,6,7,8,9,10,11,12,15,20,30,40,50,70,90,120,150]}
+
+        '''
+        i = 0
+        smallestError = 2^32              #out of sample error
+        bestDepth = depthLst[0]
+        
+        for depth in depthLst:
+            
+            args = ("mse", "best", depth)         #mae takes long long time?   # {"criterion": "mae", "splitter": "best", "max_depth": depth} 
+            averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeRegressor, *args)
+
+            print ("averageMAE cv MAE error DT: ", averageMAE)
+            if averageMAE < smallestMAE:
+                smallestError = averageMAE
+                bestDepth = depth
+        '''
+            
 
     def predictDifferentModels(self):
 
