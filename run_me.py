@@ -39,7 +39,7 @@ class classficationHw2(object):
         cvResult = clf.cv_results_
         
         bestPara = clf.best_estimator_
-        print ("cvResult : ", cvResult, bestPara)
+        print ("cvResult : ",  bestPara)
 
         '''
         i = 0
