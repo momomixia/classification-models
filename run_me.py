@@ -36,10 +36,11 @@ class classficationHw2(object):
         tree_para = {'criterion':['gini'],'max_depth':depthLst}
         clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold)
         clf.fit(trainX, trainY)
-        cvResult = clf.cv_results_
+        meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("cvResult : ",  bestPara)
+        print ("cvResult : ",  bestPara.max_depth)
+        
 
         '''
         i = 0
@@ -80,6 +81,7 @@ def main():
     
 if __name__== "__main__":
   main()
+
 
     
 '''
