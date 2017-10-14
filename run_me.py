@@ -8,6 +8,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+
 
 class classficationHw2(object):
  
@@ -37,12 +39,12 @@ class classficationHw2(object):
         testX = data[2]
         
         tree_para = {'criterion':['gini'],'max_depth':depthLst}
-        clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold)
+        clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold, n_jobs=8)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("cvResult : ",  bestPara.max_depth)
+        print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
 
         '''
@@ -70,22 +72,23 @@ class classficationHw2(object):
         trainY = data[1]
         testX = data[2]
         
-        smallestMAE = 2^32
+        smallestError = 2^32
         bestDepth = depthLst[0]
         
         for depth in depthLst:
             
             args = ("gini", "best", depth, 2)         #mae takes long long time?   # {"criterion": "mae", "splitter": "best", "max_depth": depth} 
-            averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeClassifier, *args)
+            #averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeClassifier, *args)
+            averageAccur = 1.0 - self.modelSelectionCVCrosValScore(trainX, trainY, kfold, DecisionTreeClassifier, *args)
 
-            print ("averageMAE cv MAE error DT: ", averageMAE)
-            if averageMAE < smallestMAE:
-                smallestMAE = averageMAE
+            print ("averageAccur cv out of sample error DT: ", averageAccur)
+            if averageAccur < smallestError:
+                smallestError = averageAccur
                 bestDepth = depth
                     #plot cv time
         
-        args = ("mse", "best", bestDepth)            # {"criterion": "mae", "splitter": "best", "max_depth": bestDepth} 
-        print (" bestDepth DT: ",smallestMAE,  kfold,  bestDepth)
+        args = ("gini", "best", depth, 2)            # {"criterion": "mae", "splitter": "best", "max_depth": bestDepth} 
+        print (" bestDepth DT: ",smallestError,  kfold,  bestDepth)
         predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
         #print ("predY DT: ", predY)
         #output to file
@@ -95,11 +98,13 @@ class classficationHw2(object):
         timeEnd = time.time()          #time end
 
         print ("executeTrainDTCrossVal time spent: ", timeEnd - timeBegin)
-        return (smallestMAE, kfold, bestDepth)
+        return (smallestError, kfold, bestDepth)
     
     def modelSelectionCV(self, trainX, trainY, kfold, modelFunc, *args):
 
         kf = KFold(n_splits=kfold)
+        
+        
         averageMAE = 0.0
         sumMAE = 0.0
         for trainIndex, testIndex in kf.split(trainX):
@@ -125,6 +130,27 @@ class classficationHw2(object):
 
         averageMAE  = sumMAE/kfold
         return averageMAE
+    
+    
+    def modelSelectionCVCrosValScore(self, trainX, trainY, kfold, modelFunc, *args):
+
+        model =  modelFunc(*args)
+            
+        scoresLst = cross_val_score(model, trainX, trainY, scoring="accuracy", cv=kfold, n_jobs=8)
+        averageAccur = np.mean(scoresLst)
+       
+        return abs(averageAccur)
+    
+       # use whole train data to do train and then test
+    def trainTestWholeData(self, trainX, trainY, testX, modelFunc, *args):
+        model =  modelFunc(*args)
+        model.fit(trainX, trainY)
+            
+        #print ("parameter: ", neigh.get_params(deep=True))
+        predY = model.predict(testX)
+        
+        return predY
+    
     
     def predictDifferentModels(self):
 
