@@ -7,6 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import KFold
 
 class classficationHw2(object):
  
@@ -60,7 +61,71 @@ class classficationHw2(object):
                 bestDepth = depth
         '''
             
+ 
+    #without GridSearchCV
+    def executeTrainDTCrossVal(self, data, kfold, depthLst, fileTestOutputDT):
+        
+        timeBegin = time.time()             #time begin
+        trainX = data[0]
+        trainY = data[1]
+        testX = data[2]
+        
+        smallestMAE = 2^32
+        bestDepth = depthLst[0]
+        
+        for depth in depthLst:
+            
+            args = ("gini", "best", depth, 2)         #mae takes long long time?   # {"criterion": "mae", "splitter": "best", "max_depth": depth} 
+            averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeClassifier, *args)
 
+            print ("averageMAE cv MAE error DT: ", averageMAE)
+            if averageMAE < smallestMAE:
+                smallestMAE = averageMAE
+                bestDepth = depth
+                    #plot cv time
+        
+        args = ("mse", "best", bestDepth)            # {"criterion": "mae", "splitter": "best", "max_depth": bestDepth} 
+        print (" bestDepth DT: ",smallestMAE,  kfold,  bestDepth)
+        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
+        #print ("predY DT: ", predY)
+        #output to file
+        if fileTestOutputDT != "":
+            kaggle.kaggleize(predY, fileTestOutputDT)
+        
+        timeEnd = time.time()          #time end
+
+        print ("executeTrainDTCrossVal time spent: ", timeEnd - timeBegin)
+        return (smallestMAE, kfold, bestDepth)
+    
+    def modelSelectionCV(self, trainX, trainY, kfold, modelFunc, *args):
+
+        kf = KFold(n_splits=kfold)
+        averageMAE = 0.0
+        sumMAE = 0.0
+        for trainIndex, testIndex in kf.split(trainX):
+            #print("TRAIN:", trainIndex, "TEST:", testIndex)
+            xSplitTrain, XSplitTest = trainX[trainIndex], trainX[testIndex]
+            ySplitTrain, ySplitTest = trainY[trainIndex], trainY[testIndex]
+            
+            #neigh = KNeighborsRegressor(n_neighbors=nNeighbor)
+            model =  modelFunc(*args)
+            model.fit(xSplitTrain, ySplitTrain)
+            
+            #print ("parameter: ", neigh.get_params(deep=True))
+            #predYSplitTest = model.predict(XSplitTest)
+            
+            #plot here
+            #plotCommonAfterTrain(predYSplitTest, ySplitTest)
+            #plotResidualAfterTrain(predYSplitTest, ySplitTest)
+            
+            #print ("predYSplitTest : ", predYSplitTest)
+            accurScore = model.score(XSplitTest, ySplitTest)
+            #print ("cv MAE error: ",i, mAE)
+            sumMAE += accurScore
+
+        averageMAE  = sumMAE/kfold
+        return averageMAE
+    
     def predictDifferentModels(self):
 
         dataImage = self.read_image_data()
@@ -70,10 +135,11 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent: ", timeEnd - timeBegin)
 
+        self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
 
 def main():
     
