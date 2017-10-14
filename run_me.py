@@ -1,6 +1,8 @@
 # Import python modules
 import numpy as np
 import kaggle
+import time
+
 from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.metrics import accuracy_score
@@ -67,8 +69,10 @@ class classficationHw2(object):
         depthLst = [3, 6, 9, 12, 14]              #range(1, 20) try different alpha from test
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
+        timeBegin = time.time()
         self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
-        
+        timeEnd = time.time()
+        print ("time spent: ", timeEnd - timeBegin)
 
 
 def main():
