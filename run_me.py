@@ -161,11 +161,11 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent: ", timeEnd - timeBegin)
 
-        self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
+        #self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
 
 def main():
     
