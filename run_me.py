@@ -42,7 +42,7 @@ class classficationHw2(object):
         testX = data[2]
         
         tree_para = {'criterion':['gini'],'max_depth':depthLst}
-        clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold, n_jobs=8)
+        clf = GridSearchCV(DecisionTreeClassifier(), tree_para, cv=kfold, n_jobs=12)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
@@ -68,14 +68,14 @@ class classficationHw2(object):
         testX = data[2]
         
         knn_para = {'n_neighbors': knnLst}
-        clf = GridSearchCV(KNeighborsClassifier(), knn_para, cv=kfold, n_jobs=8)
+        clf = GridSearchCV(KNeighborsClassifier(), knn_para, cv=kfold, n_jobs=12)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
         print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
         
-        kwargs = {'best n_neighbor: ': bestPara.n_neighbors}
+        kwargs = {'n_neighbor: ': bestPara.n_neighbors}
         predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
@@ -87,27 +87,27 @@ class classficationHw2(object):
     
     
      #logistic regression classifier to train model use cv
-    def executeTrainLogReg(self, data, kfold, alphaLst, fileTestOutputDT):
-        trainX = data[0]
-        trainY = data[1]
+    def executeTrainLinearReg(self, data, kfold, alphaLst, fileTestOutputDT):
+        trainX = data[0][0:1000, : ]
+        trainY = data[1][0:1000, : ]
         testX = data[2]
         
         logReg_para = {'loss': ['hinge', 'log'], 'alpha': alphaLst}
-        clf = GridSearchCV(linear_model.SGDClassifier(), logReg_para, cv=kfold, n_jobs=8)
+        clf = GridSearchCV(linear_model.SGDClassifier(), logReg_para, cv=kfold, n_jobs=12)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("logistic Regreesion cvResult : ",  bestPara.alpha,  1.0 - meanTestAccuracy)
+        print ("logistic Regreesion cvResult : ", bestPara,  bestPara.alpha,  1.0 - meanTestAccuracy)
         
-        kwargs = {'loss':  'hinge', 'best alpha': bestPara.alpha}
+        kwargs = {'loss':  'hinge', 'alpha': bestPara.alpha}
         predY = self.trainTestWholeData(trainX, trainY, testX, linear_model.SGDClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
         if fileTestOutputDT != "":
             kaggle.kaggleize(predY, fileTestOutputDT + 'hinge')
   
-        kwargs = {'loss':  'log', 'best alpha': bestPara.alpha}
+        kwargs = {'loss':  'log', 'alpha': bestPara.alpha}
         predY = self.trainTestWholeData(trainX, trainY, testX, linear_model.SGDClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
@@ -153,7 +153,16 @@ class classficationHw2(object):
         timeEnd = time.time()
         print ("time spent on KNN: ", timeEnd - timeBegin)
 
-
+        print (" -----Begin knn classification CV--------")
+        alphaLst = [1e-6, 1e-4, 1e-2, 1, 10]               #range(1, 20) try different alpha from test
+        kfold = 5
+        fileTestOutputDT  = "../Predictions/best_LR.csv"
+        
+        timeBegin = time.time()
+        self.executeTrainLinearReg(dataImage, kfold, alphaLst, fileTestOutputDT)
+        timeEnd = time.time()
+        print ("time spent on linear regression: ", timeEnd - timeBegin)
+        
 
 def main():
     
