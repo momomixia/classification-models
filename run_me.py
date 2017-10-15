@@ -33,7 +33,7 @@ class classficationHw2(object):
    
 
     
-    #decision tree train model
+    #decision tree train model use cv
     def executeTrainDT(self, data, kfold, depthLst, fileTestOutputDT):
         trainX = data[0]
         trainY = data[1]
@@ -47,7 +47,14 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
-
+        args = {'criterion':['gini'],'max_depth':bestPara.max_depth}
+        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
+        #print ("predY DT: ", predY)
+        #output to file
+        if fileTestOutputDT != "":
+            kaggle.kaggleize(predY, fileTestOutputDT)
+  
+        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
     
  
@@ -87,47 +94,8 @@ class classficationHw2(object):
             kaggle.kaggleize(predY, fileTestOutputDT)
   
         return (smallestError, kfold, bestDepth)
-    
-    def modelSelectionCV(self, trainX, trainY, kfold, modelFunc, *args):
+   
 
-        kf = KFold(n_splits=kfold)
-        
-        
-        averageMAE = 0.0
-        sumMAE = 0.0
-        for trainIndex, testIndex in kf.split(trainX):
-            #print("TRAIN:", trainIndex, "TEST:", testIndex)
-            xSplitTrain, XSplitTest = trainX[trainIndex], trainX[testIndex]
-            ySplitTrain, ySplitTest = trainY[trainIndex], trainY[testIndex]
-            
-            #neigh = KNeighborsRegressor(n_neighbors=nNeighbor)
-            model =  modelFunc(*args)
-            model.fit(xSplitTrain, ySplitTrain)
-            
-            #print ("parameter: ", neigh.get_params(deep=True))
-            #predYSplitTest = model.predict(XSplitTest)
-            
-            #plot here
-            #plotCommonAfterTrain(predYSplitTest, ySplitTest)
-            #plotResidualAfterTrain(predYSplitTest, ySplitTest)
-            
-            #print ("predYSplitTest : ", predYSplitTest)
-            accurScore = model.score(XSplitTest, ySplitTest)
-            #print ("cv MAE error: ",i, mAE)
-            sumMAE += accurScore
-
-        averageMAE  = sumMAE/kfold
-        return averageMAE
-    
-    
-    def modelSelectionCVCrosValScore(self, trainX, trainY, kfold, modelFunc, *args):
-
-        model =  modelFunc(*args)
-            
-        scoresLst = cross_val_score(model, trainX, trainY, scoring="accuracy", cv=kfold, n_jobs=8)
-        averageAccur = np.mean(scoresLst)
-       
-        return abs(averageAccur)
     
        # use whole train data to do train and then test
     def trainTestWholeData(self, trainX, trainY, testX, modelFunc, *args):
@@ -149,11 +117,11 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent: ", timeEnd - timeBegin)
 
-        self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
+    
 
 def main():
     
