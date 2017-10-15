@@ -63,8 +63,8 @@ class classficationHw2(object):
 
    #decision tree train model use cv
     def executeTrainKNN(self, data, kfold, knnLst, fileTestOutputDT):
-        trainX = data[0][0:1000, : ]                #smaller first for debugging
-        trainY = data[1][0:1000]
+        trainX = data[0]        #[0:1000, : ]                #smaller first for debugging
+        trainY = data[1]        #[0:1000]
         testX = data[2]
         
         knn_para = {'n_neighbors': knnLst}
@@ -83,7 +83,7 @@ class classficationHw2(object):
             kaggle.kaggleize(predY, fileTestOutputDT)
   
         
-        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.n_neighbors)
+        #return (min(1.0 - meanTestAccuracy),  kfold, bestPara.n_neighbors)
     
     
      #logistic regression classifier to train model use cv
@@ -149,7 +149,7 @@ class classficationHw2(object):
         fileTestOutputDT  = "../Predictions/best_KNN.csv"
         
         timeBegin = time.time()
-        #self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
+        self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent on KNN: ", timeEnd - timeBegin)
 
@@ -159,7 +159,7 @@ class classficationHw2(object):
         fileTestOutputDT  = "../Predictions/best_LR.csv"
         
         timeBegin = time.time()
-        self.executeTrainLinearReg(dataImage, kfold, alphaLst, fileTestOutputDT)
+        #self.executeTrainLinearReg(dataImage, kfold, alphaLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent on linear regression: ", timeEnd - timeBegin)
         
