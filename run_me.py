@@ -47,8 +47,8 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
-        args = 'max_depth'= bestPara.max_depth
-        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, args)
+        kwargs = {'max_depth': bestPara.max_depth}
+        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
         if fileTestOutputDT != "":
@@ -61,8 +61,8 @@ class classficationHw2(object):
 
     
        # use whole train data to do train and then test
-    def trainTestWholeData(self, trainX, trainY, testX, modelFunc, args):
-        model =  modelFunc(args)
+    def trainTestWholeData(self, trainX, trainY, testX, modelFunc, kwargs):
+        model =  modelFunc(**kwargs)
         model.fit(trainX, trainY)
             
         #print ("parameter: ", neigh.get_params(deep=True))
