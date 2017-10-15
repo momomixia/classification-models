@@ -5,6 +5,7 @@ import time
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import linear_model
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
@@ -46,7 +47,7 @@ class classficationHw2(object):
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
+        print ("DT cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
         kwargs = {'criterion':'gini', 'max_depth': bestPara.max_depth}
         predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, kwargs)
@@ -66,13 +67,13 @@ class classficationHw2(object):
         trainY = data[1]
         testX = data[2]
         
-        tree_para = {'n_neighbors': knnLst}
-        clf = GridSearchCV(KNeighborsClassifier(), tree_para, cv=kfold, n_jobs=8)
+        knn_para = {'n_neighbors': knnLst}
+        clf = GridSearchCV(KNeighborsClassifier(), knn_para, cv=kfold, n_jobs=8)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
+        print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
         
         kwargs = {'max_depth': bestPara.max_depth}
         predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
@@ -85,6 +86,29 @@ class classficationHw2(object):
         return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
     
+     #logistic regression classifier to train model use cv
+    def executeTrainLogReg(self, data, kfold, alphaLst, fileTestOutputDT):
+        trainX = data[0]
+        trainY = data[1]
+        testX = data[2]
+        
+        logReg_para = {'alpha': alphaLst}
+        clf = GridSearchCV(linear_model.SGDClassifier(), logReg_para, cv=kfold, n_jobs=8)
+        clf.fit(trainX, trainY)
+        meanTestAccuracy = clf.cv_results_['mean_test_score']
+        
+        bestPara = clf.best_estimator_
+        print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
+        
+        kwargs = {'max_depth': bestPara.max_depth}
+        predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
+        #print ("predY DT: ", predY)
+        #output to file
+        if fileTestOutputDT != "":
+            kaggle.kaggleize(predY, fileTestOutputDT)
+  
+        
+        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
     # use whole train data to do train and then test
     def trainTestWholeData(self, trainX, trainY, testX, modelFunc, kwargs):
