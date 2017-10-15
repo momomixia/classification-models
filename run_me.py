@@ -30,8 +30,9 @@ class classficationHw2(object):
         return (train_x, train_y, test_x)
 
 
+   
 
-
+    
     #decision tree train model
     def executeTrainDT(self, data, kfold, depthLst, fileTestOutputDT):
         trainX = data[0]
@@ -47,22 +48,8 @@ class classficationHw2(object):
         print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
 
-        '''
-        i = 0
-        smallestError = 2^32              #out of sample error
-        bestDepth = depthLst[0]
-        
-        for depth in depthLst:
-            
-            args = ("mse", "best", depth)         #mae takes long long time?   # {"criterion": "mae", "splitter": "best", "max_depth": depth} 
-            averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeRegressor, *args)
-
-            print ("averageMAE cv MAE error DT: ", averageMAE)
-            if averageMAE < smallestMAE:
-                smallestError = averageMAE
-                bestDepth = depth
-        '''
-            
+    
+    
  
     #without GridSearchCV
     def executeTrainDTCrossVal(self, data, kfold, depthLst, fileTestOutputDT):
@@ -81,12 +68,16 @@ class classficationHw2(object):
             #averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeClassifier, *args)
             averageAccur = 1.0 - self.modelSelectionCVCrosValScore(trainX, trainY, kfold, DecisionTreeClassifier, *args)
 
-            print ("averageAccur cv out of sample error DT: ", averageAccur)
+            #print ("averageAccur cv out of sample error DT: ", averageAccur)
             if averageAccur < smallestError:
                 smallestError = averageAccur
                 bestDepth = depth
                     #plot cv time
-        
+      
+        timeEnd = time.time()          #time end
+
+        print ("executeTrainDTCrossVal time spent: ", timeEnd - timeBegin)
+
         args = ("gini", "best", depth, 2)            # {"criterion": "mae", "splitter": "best", "max_depth": bestDepth} 
         print (" bestDepth DT: ",smallestError,  kfold,  bestDepth)
         predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
@@ -94,10 +85,7 @@ class classficationHw2(object):
         #output to file
         if fileTestOutputDT != "":
             kaggle.kaggleize(predY, fileTestOutputDT)
-        
-        timeEnd = time.time()          #time end
-
-        print ("executeTrainDTCrossVal time spent: ", timeEnd - timeBegin)
+  
         return (smallestError, kfold, bestDepth)
     
     def modelSelectionCV(self, trainX, trainY, kfold, modelFunc, *args):
@@ -161,11 +149,11 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent: ", timeEnd - timeBegin)
 
-        #self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
+        self.executeTrainDTCrossVal(dataImage, kfold, depthLst, fileTestOutputDT)
 
 def main():
     
