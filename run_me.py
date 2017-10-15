@@ -75,7 +75,7 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
         
-        kwargs = {'max_depth': bestPara.max_depth}
+        kwargs = {'best n_neighbor: ': bestPara.n_neighbors}
         predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
@@ -83,7 +83,7 @@ class classficationHw2(object):
             kaggle.kaggleize(predY, fileTestOutputDT)
   
         
-        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
+        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.n_neighbors)
     
     
      #logistic regression classifier to train model use cv
@@ -92,23 +92,30 @@ class classficationHw2(object):
         trainY = data[1]
         testX = data[2]
         
-        logReg_para = {'alpha': alphaLst}
+        logReg_para = {'loss': ['hinge', 'log'], 'alpha': alphaLst}
         clf = GridSearchCV(linear_model.SGDClassifier(), logReg_para, cv=kfold, n_jobs=8)
         clf.fit(trainX, trainY)
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
+        print ("logistic Regreesion cvResult : ",  bestPara.alpha,  1.0 - meanTestAccuracy)
         
-        kwargs = {'max_depth': bestPara.max_depth}
-        predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
+        kwargs = {'loss':  'hinge', 'best alpha': bestPara.alpha}
+        predY = self.trainTestWholeData(trainX, trainY, testX, linear_model.SGDClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
         if fileTestOutputDT != "":
-            kaggle.kaggleize(predY, fileTestOutputDT)
+            kaggle.kaggleize(predY, fileTestOutputDT + 'hinge')
   
-        
-        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
+        kwargs = {'loss':  'log', 'best alpha': bestPara.alpha}
+        predY = self.trainTestWholeData(trainX, trainY, testX, linear_model.SGDClassifier, kwargs)
+        #print ("predY DT: ", predY)
+        #output to file
+        if fileTestOutputDT != "":
+            kaggle.kaggleize(predY, fileTestOutputDT + 'log')
+            
+            
+        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.alpha)
     
     # use whole train data to do train and then test
     def trainTestWholeData(self, trainX, trainY, testX, modelFunc, kwargs):
@@ -145,6 +152,8 @@ class classficationHw2(object):
         self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent on KNN: ", timeEnd - timeBegin)
+
+
 
 def main():
     
