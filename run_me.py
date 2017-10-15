@@ -63,8 +63,8 @@ class classficationHw2(object):
 
    #decision tree train model use cv
     def executeTrainKNN(self, data, kfold, knnLst, fileTestOutputDT):
-        trainX = data[0]
-        trainY = data[1]
+        trainX = data[0][0:1000, : ]                #smaller first for debugging
+        trainY = data[1][0:1000]
         testX = data[2]
         
         knn_para = {'n_neighbors': knnLst}
@@ -75,7 +75,7 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("KNN cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
         
-        kwargs = {'n_neighbor: ': bestPara.n_neighbors}
+        kwargs = {'n_neighbors': bestPara.n_neighbors}
         predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
@@ -88,8 +88,8 @@ class classficationHw2(object):
     
      #logistic regression classifier to train model use cv
     def executeTrainLinearReg(self, data, kfold, alphaLst, fileTestOutputDT):
-        trainX = data[0][0:1000, : ]
-        trainY = data[1][0:1000, : ]
+        trainX = data[0]
+        trainY = data[1]
         testX = data[2]
         
         logReg_para = {'loss': ['hinge', 'log'], 'alpha': alphaLst}
@@ -98,7 +98,7 @@ class classficationHw2(object):
         meanTestAccuracy = clf.cv_results_['mean_test_score']
         
         bestPara = clf.best_estimator_
-        print ("logistic Regreesion cvResult : ", bestPara,  bestPara.alpha,  1.0 - meanTestAccuracy)
+        print ("logistic Regreesion cvResult : ", bestPara.loss,  bestPara.alpha,  1.0 - meanTestAccuracy)
         
         kwargs = {'loss':  'hinge', 'alpha': bestPara.alpha}
         predY = self.trainTestWholeData(trainX, trainY, testX, linear_model.SGDClassifier, kwargs)
@@ -149,7 +149,7 @@ class classficationHw2(object):
         fileTestOutputDT  = "../Predictions/best_KNN.csv"
         
         timeBegin = time.time()
-        self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
+        #self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent on KNN: ", timeEnd - timeBegin)
 
