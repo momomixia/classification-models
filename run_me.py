@@ -47,8 +47,8 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
-        args = {'criterion':['gini'],'max_depth':bestPara.max_depth}
-        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
+        args = 'max_depth'= bestPara.max_depth
+        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, args)
         #print ("predY DT: ", predY)
         #output to file
         if fileTestOutputDT != "":
@@ -57,49 +57,12 @@ class classficationHw2(object):
         return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
     
- 
-    #without GridSearchCV
-    def executeTrainDTCrossVal(self, data, kfold, depthLst, fileTestOutputDT):
-        
-        timeBegin = time.time()             #time begin
-        trainX = data[0]
-        trainY = data[1]
-        testX = data[2]
-        
-        smallestError = 2^32
-        bestDepth = depthLst[0]
-        
-        for depth in depthLst:
-            
-            args = ("gini", "best", depth, 2)         #mae takes long long time?   # {"criterion": "mae", "splitter": "best", "max_depth": depth} 
-            #averageMAE = self.modelSelectionCV(trainX, trainY, kfold, DecisionTreeClassifier, *args)
-            averageAccur = 1.0 - self.modelSelectionCVCrosValScore(trainX, trainY, kfold, DecisionTreeClassifier, *args)
 
-            #print ("averageAccur cv out of sample error DT: ", averageAccur)
-            if averageAccur < smallestError:
-                smallestError = averageAccur
-                bestDepth = depth
-                    #plot cv time
-      
-        timeEnd = time.time()          #time end
-
-        print ("executeTrainDTCrossVal time spent: ", timeEnd - timeBegin)
-
-        args = ("gini", "best", depth, 2)            # {"criterion": "mae", "splitter": "best", "max_depth": bestDepth} 
-        print (" bestDepth DT: ",smallestError,  kfold,  bestDepth)
-        predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, *args)
-        #print ("predY DT: ", predY)
-        #output to file
-        if fileTestOutputDT != "":
-            kaggle.kaggleize(predY, fileTestOutputDT)
-  
-        return (smallestError, kfold, bestDepth)
-   
 
     
        # use whole train data to do train and then test
-    def trainTestWholeData(self, trainX, trainY, testX, modelFunc, *args):
-        model =  modelFunc(*args)
+    def trainTestWholeData(self, trainX, trainY, testX, modelFunc, args):
+        model =  modelFunc(args)
         model.fit(trainX, trainY)
             
         #print ("parameter: ", neigh.get_params(deep=True))
