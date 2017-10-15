@@ -4,6 +4,7 @@ import kaggle
 import time
 
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
@@ -47,20 +48,45 @@ class classficationHw2(object):
         bestPara = clf.best_estimator_
         print ("cvResult : ",  bestPara.max_depth,  1.0 - meanTestAccuracy)
         
-        kwargs = {'max_depth': bestPara.max_depth}
+        kwargs = {'criterion':'gini', 'max_depth': bestPara.max_depth}
         predY = self.trainTestWholeData(trainX, trainY, testX, DecisionTreeClassifier, kwargs)
         #print ("predY DT: ", predY)
         #output to file
         if fileTestOutputDT != "":
             kaggle.kaggleize(predY, fileTestOutputDT)
   
+        
         return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
     
 
-
+   #decision tree train model use cv
+    def executeTrainKNN(self, data, kfold, knnLst, fileTestOutputDT):
+        trainX = data[0]
+        trainY = data[1]
+        testX = data[2]
+        
+        tree_para = {'n_neighbors': knnLst}
+        clf = GridSearchCV(KNeighborsClassifier(), tree_para, cv=kfold, n_jobs=8)
+        clf.fit(trainX, trainY)
+        meanTestAccuracy = clf.cv_results_['mean_test_score']
+        
+        bestPara = clf.best_estimator_
+        print ("cvResult : ",  bestPara.n_neighbors,  1.0 - meanTestAccuracy)
+        
+        kwargs = {'max_depth': bestPara.max_depth}
+        predY = self.trainTestWholeData(trainX, trainY, testX, KNeighborsClassifier, kwargs)
+        #print ("predY DT: ", predY)
+        #output to file
+        if fileTestOutputDT != "":
+            kaggle.kaggleize(predY, fileTestOutputDT)
+  
+        
+        return (min(1.0 - meanTestAccuracy),  kfold, bestPara.max_depth)
     
-       # use whole train data to do train and then test
+    
+    
+    # use whole train data to do train and then test
     def trainTestWholeData(self, trainX, trainY, testX, modelFunc, kwargs):
         model =  modelFunc(**kwargs)
         model.fit(trainX, trainY)
@@ -71,6 +97,7 @@ class classficationHw2(object):
         return predY
     
     
+    #use diefferent model to classify images
     def predictDifferentModels(self):
 
         dataImage = self.read_image_data()
@@ -80,11 +107,20 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
-        print ("time spent: ", timeEnd - timeBegin)
+        print ("time spent on DT: ", timeEnd - timeBegin)
 
-    
+
+        print (" -----Begin knn classification CV--------")
+        knnLst = [3, 5, 7, 9, 11]              #range(1, 20) try different alpha from test
+        kfold = 5
+        fileTestOutputDT  = "../Predictions/best_KNN.csv"
+        
+        timeBegin = time.time()
+        self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
+        timeEnd = time.time()
+        print ("time spent on KNN: ", timeEnd - timeBegin)
 
 def main():
     
