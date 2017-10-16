@@ -116,7 +116,7 @@ def nnOneLayerTrainEntry():
     # Momentum of gradients update
     momentum = 0.1
     # Number of epochs
-    nEpochs = 10                #10
+    nEpochs = 2              #10
     # Number of train examples
     nTrainSamples = train_x.shape[0]
     # Number of input dimensions
@@ -135,7 +135,7 @@ def nnOneLayerTrainEntry():
     xnEpochsLst = range(1, nEpochs+1)
     yLossLst = []
     for dims_hid in dims_hid_list:
-        trainStart = time.time()
+        trainStart = time.time()*1000
 
         # Initializing weights
         W = np.random.randn(dims_in, dims_hid)
@@ -152,7 +152,7 @@ def nnOneLayerTrainEntry():
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
         
-        print ( "NN time for different M: ", dims_hid, time.time() - trainStart)
+        print ( "NN time for different M: ", dims_hid, time.time()*1000 - trainStart)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
