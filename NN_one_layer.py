@@ -152,9 +152,9 @@ def nnOneLayerTrainEntry():
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
         
-    print ( "NN time for different M: ", dims_hid, time.time() - trainStart)
+        print ( "NN time for different M: ", dims_hid, time.time() - trainStart)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
-    print('Train yLossInns =', xnEpochsLst, yLossLst)
+    #print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
     
 nnOneLayerTrainEntry()
