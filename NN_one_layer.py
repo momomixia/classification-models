@@ -27,20 +27,20 @@ def logistic_loss_batch(weights, x, y, unflatten):
         out  = feedForward(W, b, V, c, x)
         pred = np.argmax(out, axis=1)
 
-	# True labels
+	    # True labels
         true = np.argmax(y, axis=1)
         # Mean accuracy
         class_err = np.mean(pred != true)
 
         # Computing logistic loss with l2 penalization
-        logistic_loss = np.sum(-np.sum(out * train_y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+        logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
         
         # returning loss. Note that outputs can only be returned in the below format
         return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
 
 
 #read image data
-def read_image_data(self):
+def read_image_data():
     # Loading the dataset
     print('Reading image data ...')
     temp = np.load('../../Data/data_train.npz')
@@ -52,7 +52,7 @@ def read_image_data(self):
     return (train_x, train_y_integers, test_x)
 
 
-def nnOneLayerTrain():
+def nnOneLayerTrainEntry():
     data = read_image_data()
     train_x = data[0]
     train_y_integers = data[1]
@@ -111,3 +111,6 @@ def nnOneLayerTrain():
     
     print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
     
+
+
+nnOneLayerTrain()
