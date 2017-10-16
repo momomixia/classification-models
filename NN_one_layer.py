@@ -2,8 +2,8 @@ import autograd.numpy as np
 import autograd
 from autograd.util import flatten
 from plotting import plotNN
-
 import time
+from sklearn.cross_validation import StratifiedShuffleSplit
 
 # Function to compute classification accuracy
 def mean_zero_one_loss(weights, x, y_integers, unflatten):
@@ -116,7 +116,7 @@ def nnOneLayerTrainEntry():
     # Momentum of gradients update
     momentum = 0.1
     # Number of epochs
-    nEpochs = 2              #10
+    nEpochs = 1000             #10
     # Number of train examples
     nTrainSamples = train_x.shape[0]
     # Number of input dimensions
@@ -147,7 +147,7 @@ def nnOneLayerTrainEntry():
         all_weights = (W, b, V, c)
         weights, unflatten = flatten(all_weights)
         yLossInns = []
-        for epo in range(0, nEpochs):
+        for epo in xnEpochsLst: #range(0, nEpochs):
             smooth_grad, weights, meanLogisticloss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
@@ -157,4 +157,5 @@ def nnOneLayerTrainEntry():
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
     
+
 nnOneLayerTrainEntry()
