@@ -12,32 +12,54 @@ def mean_zero_one_loss(weights, x, y_integers, unflatten):
 
 # Feed forward output i.e. L = -O[y] + log(sum(exp(O[j])))
 def feedForward(W, b, V, c, train_x):
-        hid = np.tanh(np.dot(train_x, W) + b)
-        out = np.dot(hid, V) + c
-        return out
+    hid = np.tanh(np.dot(train_x, W) + b)
+    out = np.dot(hid, V) + c
+    return out
 
-# Logistic Loss function
-def logistic_loss_batch(weights, x, y, unflatten):
-	# regularization penalty
-        lambda_pen = 10
+#mean logistic loss
+def mean_logistic_loss(weights, x, y, unflatten):
+      # regularization penalty
+    lambda_pen = 10
 
-        # unflatten weights into W, b, V and c respectively 
-        (W, b, V, c) = unflatten(weights)
+    # unflatten weights into W, b, V and c respectively 
+    (W, b, V, c) = unflatten(weights)
 
-        # Predict output for the entire train data
-        out  = feedForward(W, b, V, c, x)
-        pred = np.argmax(out, axis=1)
+    # Predict output for the entire train data
+    out  = feedForward(W, b, V, c, x)
+    #pred = np.argmax(out, axis=1)
 
 	    # True labels
-        true = np.argmax(y, axis=1)
-        # Mean accuracy
-        class_err = np.mean(pred != true)
+    #true = np.argmax(y, axis=1)
+    # Mean accuracy
+    #class_err = np.mean(pred != true)
 
-        # Computing logistic loss with l2 penalization
-        logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-        
-        # returning loss. Note that outputs can only be returned in the below format
-        return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
+    # Computing logistic loss with l2 penalization
+    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    
+    return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
+    
+# Logistic Loss function
+def logistic_loss_batch(weights, x, y, unflatten):
+    # regularization penalty
+    lambda_pen = 10
+
+    # unflatten weights into W, b, V and c respectively 
+    (W, b, V, c) = unflatten(weights)
+
+    # Predict output for the entire train data
+    out  = feedForward(W, b, V, c, x)
+    pred = np.argmax(out, axis=1)
+
+	    # True labels
+    true = np.argmax(y, axis=1)
+    # Mean accuracy
+    class_err = np.mean(pred != true)
+
+    # Computing logistic loss with l2 penalization
+    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    
+    # returning loss. Note that outputs can only be returned in the below format
+    return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
 
 
 #read image data
@@ -68,10 +90,10 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
     weights = weights - epsilon * smooth_grad
     
-    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    #print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
     
-    lossFunc = 
-    return smooth_grad, weights, 
+    meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
+    return smooth_grad, weights, meanLogisticloss
     
 def nnOneLayerTrainEntry():
     data = read_image_data()
@@ -108,8 +130,8 @@ def nnOneLayerTrainEntry():
     assert momentum <= 1
     assert epsilon <= 1
     
-    xnEpochs = range(0, nEpochs)
-    yLoss = []
+    xnEpochsLst = range(1, nEpochs+1)
+    yLossLst = []
     for dims_hid in dims_hid_list:
         # Initializing weights
         W = np.random.randn(dims_in, dims_hid)
@@ -121,13 +143,13 @@ def nnOneLayerTrainEntry():
         # Compress all weights into one weight vector using autograd's flatten
         all_weights = (W, b, V, c)
         weights, unflatten = flatten(all_weights)
-    
+        yLossInns = []
         for epo in range(0, nEpochs):
-        
-            smooth_grad, weights = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
-        
-    
+            smooth_grad, weights, meanLogisticloss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+            yLossInns.append(meanLogisticloss)
+        yLossLst.append(yLossInns)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
-    plotNN(xnEpochs, y1, y2, y3, labels)
+    print('Train yLossInns =', xnEpochsLst, yLossLst)
+    plotNN(xnEpochsLst, yLossLst, labels)
     
 nnOneLayerTrainEntry()
