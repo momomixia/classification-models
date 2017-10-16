@@ -3,7 +3,7 @@ import autograd
 from autograd.util import flatten
 from plotting import plotNN
 import time
-from sklearn.cross_validation import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 
 # Function to compute classification accuracy
 def mean_zero_one_loss(weights, x, y_integers, unflatten):
@@ -93,9 +93,10 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     weights = weights - epsilon * smooth_grad
     
     #print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    meanZeroOneLoss = 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
     
     meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
-    return smooth_grad, weights, meanLogisticloss
+    return smooth_grad, weights, meanLogisticloss, meanZeroOneLoss
     
 def nnOneLayerTrainEntry():
     data = read_image_data()
@@ -132,7 +133,7 @@ def nnOneLayerTrainEntry():
     assert momentum <= 1
     assert epsilon <= 1
     
-    xnEpochsLst = range(1, nEpochs+1)
+    xnEpochsLst = range(1, nEpochs+1, 3)
     yLossLst = []
     for dims_hid in dims_hid_list:
         trainStart = time.time()*1000
@@ -148,7 +149,7 @@ def nnOneLayerTrainEntry():
         weights, unflatten = flatten(all_weights)
         yLossInns = []
         for epo in xnEpochsLst: #range(0, nEpochs):
-            smooth_grad, weights, meanLogisticloss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
         
@@ -156,6 +157,47 @@ def nnOneLayerTrainEntry():
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
+
+#stratify once only to test validation set
+def stratifyDataNN(train_x, train_y):
+    data = read_image_data()
+    train_x = data[0]
+    train_y_integers = data[1]
+    test_x = data[2]
     
+    dims_in = train_x.shape[1]
+    dims_out = 4
+    nTrainSamples = train_x.shape[0]
+    train_y = np.zeros((nTrainSamples, dims_out))
+    train_y[np.arange(nTrainSamples), train_y_integers] = 1
+    
+    xTrain, xTest, yTrain, yTest = train_test_split(train_x, train_y, test_size=0.2, random_state=0, stratify=train_y)
+       
+    # Learning rate
+    epsilon = 0.0001
+    # Momentum of gradients update
+    momentum = 0.1
+    dims_hid_list = [5, 40, 70]
+    
+    xnEpochsLst = range(1, nEpochs+1, 3)
+
+    smallestValidationError = 2**32
+    for dims_hid in dims_hid_list:
+
+        # Initializing weights
+        W = np.random.randn(dims_in, dims_hid)
+        b = np.random.randn(dims_hid)
+        V = np.random.randn(dims_hid, dims_out)
+        c = np.random.randn(dims_out)
+        smooth_grad = 0
+        # Compress all weights into one weight vector using autograd's flatten
+        all_weights = (W, b, V, c)
+        weights, unflatten = flatten(all_weights)
+        meanZeroOneLoss = 0
+
+        for epo in xnEpochsLst: #range(0, nEpochs):
+            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+        
+        
 
 nnOneLayerTrainEntry()
