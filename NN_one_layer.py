@@ -52,6 +52,26 @@ def read_image_data():
     return (train_x, train_y_integers, test_x)
 
 
+#one time of forward propagtion for optimization
+def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad):
+    
+    
+    # Batch compute the gradients (partial derivatives of the loss function w.r.t to all NN parameters)
+    grad_fun = autograd.grad_and_aux(logistic_loss_batch)
+    
+
+    # Compute gradients (partial derivatives) using autograd toolbox
+    weight_gradients, returned_values = grad_fun(weights, train_x, train_y, unflatten)
+    print('logistic loss: ', returned_values[0], 'Train error =', returned_values[1])
+    
+    # Update weight vector
+    smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
+    weights = weights - epsilon * smooth_grad
+    
+    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    
+    return smooth_grad, weights
+    
 def nnOneLayerTrainEntry():
     data = read_image_data()
     train_x = data[0]
@@ -71,7 +91,7 @@ def nnOneLayerTrainEntry():
     # Momentum of gradients update
     momentum = 0.1
     # Number of epochs
-    nEpochs = 10
+    nEpochs = 1000                #10
     # Number of train examples
     nTrainSamples = train_x.shape[0]
     # Number of input dimensions
@@ -87,9 +107,6 @@ def nnOneLayerTrainEntry():
     assert momentum <= 1
     assert epsilon <= 1
     
-    # Batch compute the gradients (partial derivatives of the loss function w.r.t to all NN parameters)
-    grad_fun = autograd.grad_and_aux(logistic_loss_batch)
-    
     # Initializing weights
     W = np.random.randn(dims_in, dims_hid)
     b = np.random.randn(dims_hid)
@@ -100,17 +117,11 @@ def nnOneLayerTrainEntry():
     # Compress all weights into one weight vector using autograd's flatten
     all_weights = (W, b, V, c)
     weights, unflatten = flatten(all_weights)
-    
-    # Compute gradients (partial derivatives) using autograd toolbox
-    weight_gradients, returned_values = grad_fun(weights, train_x, train_y, unflatten)
-    print('logistic loss: ', returned_values[0], 'Train error =', returned_values[1])
-    
-    # Update weight vector
-    smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
-    weights = weights - epsilon * smooth_grad
-    
-    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+
+    for i in range(0, nEpochs):
+        smooth_grad, weights = trainNN(nEpochs, epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+        
     
 
-
-nnOneLayerTrain()
+    
+nnOneLayerTrainEntry()
