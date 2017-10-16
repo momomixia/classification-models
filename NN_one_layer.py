@@ -3,6 +3,8 @@ import autograd
 from autograd.util import flatten
 from plotting import plotNN
 
+import time
+
 # Function to compute classification accuracy
 def mean_zero_one_loss(weights, x, y_integers, unflatten):
 	(W, b, V, c) = unflatten(weights)
@@ -36,7 +38,7 @@ def mean_logistic_loss(weights, x, y, unflatten):
     # Computing logistic loss with l2 penalization
     logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
     
-    return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
+    return logistic_loss/y.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
 def logistic_loss_batch(weights, x, y, unflatten):
@@ -133,13 +135,14 @@ def nnOneLayerTrainEntry():
     xnEpochsLst = range(1, nEpochs+1)
     yLossLst = []
     for dims_hid in dims_hid_list:
+        trainStart = time.time()
+
         # Initializing weights
         W = np.random.randn(dims_in, dims_hid)
         b = np.random.randn(dims_hid)
         V = np.random.randn(dims_hid, dims_out)
         c = np.random.randn(dims_out)
         smooth_grad = 0
-        
         # Compress all weights into one weight vector using autograd's flatten
         all_weights = (W, b, V, c)
         weights, unflatten = flatten(all_weights)
@@ -148,6 +151,8 @@ def nnOneLayerTrainEntry():
             smooth_grad, weights, meanLogisticloss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
+        
+    print ( "NN time for different M: ", dims_hid, time.time() - trainStart)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
