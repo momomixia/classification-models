@@ -38,63 +38,76 @@ def logistic_loss_batch(weights, x, y, unflatten):
         # returning loss. Note that outputs can only be returned in the below format
         return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
 
-# Loading the dataset
-print('Reading image data ...')
-temp = np.load('../../Data/data_train.npz')
-train_x = temp['data_train']
-temp = np.load('../../Data/labels_train.npz')
-train_y_integers = temp['labels_train']
-temp = np.load('../../Data/data_test.npz')
-test_x = temp['data_test']
 
-# Make inputs approximately zero mean (improves optimization backprob algorithm in NN)
-train_x -= .5
-test_x  -= .5
+#read image data
+def read_image_data(self):
+    # Loading the dataset
+    print('Reading image data ...')
+    temp = np.load('../../Data/data_train.npz')
+    train_x = temp['data_train']
+    temp = np.load('../../Data/labels_train.npz')
+    train_y_integers = temp['labels_train']
+    temp = np.load('../../Data/data_test.npz')
+    test_x = temp['data_test']
+    return (train_x, train_y_integers, test_x)
 
-# Number of output dimensions
-dims_out = 4
-# Number of hidden units
-dims_hid = 5
-# Learning rate
-epsilon = 0.0001
-# Momentum of gradients update
-momentum = 0.1
-# Number of epochs
-nEpochs = 10
-# Number of train examples
-nTrainSamples = train_x.shape[0]
-# Number of input dimensions
-dims_in = train_x.shape[1]
 
-# Convert integer labels to one-hot vectors
-# i.e. convert label 2 to 0, 0, 1, 0
-train_y = np.zeros((nTrainSamples, dims_out))
-train_y[np.arange(nTrainSamples), train_y_integers] = 1
+def nnOneLayerTrain():
+    data = read_image_data()
+    train_x = data[0]
+    train_y_integers = data[1]
+    test_x = data[2]
 
-assert momentum <= 1
-assert epsilon <= 1
-
-# Batch compute the gradients (partial derivatives of the loss function w.r.t to all NN parameters)
-grad_fun = autograd.grad_and_aux(logistic_loss_batch)
-
-# Initializing weights
-W = np.random.randn(dims_in, dims_hid)
-b = np.random.randn(dims_hid)
-V = np.random.randn(dims_hid, dims_out)
-c = np.random.randn(dims_out)
-smooth_grad = 0
-
-# Compress all weights into one weight vector using autograd's flatten
-all_weights = (W, b, V, c)
-weights, unflatten = flatten(all_weights)
-
-# Compute gradients (partial derivatives) using autograd toolbox
-weight_gradients, returned_values = grad_fun(weights, train_x, train_y, unflatten)
-print('logistic loss: ', returned_values[0], 'Train error =', returned_values[1])
-
-# Update weight vector
-smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
-weights = weights - epsilon * smooth_grad
-
-print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
-
+    # Make inputs approximately zero mean (improves optimization backprob algorithm in NN)
+    train_x -= .5
+    test_x  -= .5
+    
+    # Number of output dimensions
+    dims_out = 4
+    # Number of hidden units
+    dims_hid = 5
+    # Learning rate
+    epsilon = 0.0001
+    # Momentum of gradients update
+    momentum = 0.1
+    # Number of epochs
+    nEpochs = 10
+    # Number of train examples
+    nTrainSamples = train_x.shape[0]
+    # Number of input dimensions
+    dims_in = train_x.shape[1]
+    
+    # Convert integer labels to one-hot vectors
+    # i.e. convert label 2 to 0, 0, 1, 0
+    train_y = np.zeros((nTrainSamples, dims_out))
+    train_y[np.arange(nTrainSamples), train_y_integers] = 1
+    
+    print ("trainy shape: ", train_y.shape)
+    
+    assert momentum <= 1
+    assert epsilon <= 1
+    
+    # Batch compute the gradients (partial derivatives of the loss function w.r.t to all NN parameters)
+    grad_fun = autograd.grad_and_aux(logistic_loss_batch)
+    
+    # Initializing weights
+    W = np.random.randn(dims_in, dims_hid)
+    b = np.random.randn(dims_hid)
+    V = np.random.randn(dims_hid, dims_out)
+    c = np.random.randn(dims_out)
+    smooth_grad = 0
+    
+    # Compress all weights into one weight vector using autograd's flatten
+    all_weights = (W, b, V, c)
+    weights, unflatten = flatten(all_weights)
+    
+    # Compute gradients (partial derivatives) using autograd toolbox
+    weight_gradients, returned_values = grad_fun(weights, train_x, train_y, unflatten)
+    print('logistic loss: ', returned_values[0], 'Train error =', returned_values[1])
+    
+    # Update weight vector
+    smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
+    weights = weights - epsilon * smooth_grad
+    
+    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    
