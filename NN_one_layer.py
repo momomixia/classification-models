@@ -30,7 +30,7 @@ def mean_logistic_loss(weights, x, y, unflatten):
     out  = feedForward(W, b, V, c, x)
     #pred = np.argmax(out, axis=1)
 
-	    # True labels
+	# True labels
     #true = np.argmax(y, axis=1)
     # Mean accuracy
     #class_err = np.mean(pred != true)
@@ -38,7 +38,8 @@ def mean_logistic_loss(weights, x, y, unflatten):
     # Computing logistic loss with l2 penalization
     logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
     
-    return logistic_loss/y.shape[0]       #np.mean(logistic_loss)
+    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss))
+    return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
 def logistic_loss_batch(weights, x, y, unflatten):
@@ -80,7 +81,6 @@ def read_image_data():
 #one time of forward propagtion for optimization
 def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad):
     
-    
     # Batch compute the gradients (partial derivatives of the loss function w.r.t to all NN parameters)
     grad_fun = autograd.grad_and_aux(logistic_loss_batch)
     
@@ -93,11 +93,13 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     weights = weights - epsilon * smooth_grad
     
     print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
-    meanZeroOneLoss = 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
+    meanZeroOneLoss = mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
     
     meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
     return smooth_grad, weights, meanLogisticloss, meanZeroOneLoss
     
+
+#for train 1000 epochs with different NN models;    part 4 1 plot
 def nnOneLayerTrainEntry():
     data = read_image_data()
     train_x = data[0]
@@ -203,5 +205,5 @@ def stratifyDataNN():
         
         
 
-#nnOneLayerTrainEntry()
-stratifyDataNN()
+nnOneLayerTrainEntry()               # for plot
+#stratifyDataNN()
