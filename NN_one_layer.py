@@ -197,7 +197,7 @@ def SstratifyDataTrainTestNN():
     # Momentum of gradients update
     momentum = 0.1
     dims_hid_list = [5, 40, 70]
-    nEpochs = 1000
+    nEpochs = 2000
     xnEpochsLst = range(1, nEpochs+1, 1)
 
     smallestValidationError = 2**32
