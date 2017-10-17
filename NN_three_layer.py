@@ -17,7 +17,7 @@ from sklearn.neural_network import MLPClassifier
 
 from NN_one_layer import read_image_data
 import kaggle
-
+import time
 
 #use stra
 def stratifyDataTrainTest3layerNN():
@@ -41,20 +41,25 @@ def stratifyDataTrainTest3layerNN():
     smalleAccuracy = 2**32
     best_hidden_layer_size = None
     for hidden_layer_sizes in hidden_layer_sizes_lst:
-        mlp = MLPClassifier(hidden_layer_sizes, activation='tanh', max_iter=200, momentum=0.9, epsilon=1e-8)
+        beginTime = time.time()
+        mlp = MLPClassifier(hidden_layer_sizes, activation='tanh', max_iter=500, momentum=0.9, epsilon=1e-8)
         mlp.fit(xsplitTrain,ysplitTrain_integer)
         #pred = mlp.predict(xsplitTest)              #predict validation set
         meanAccuracy = mlp.score(xsplitTest, ysplitTest_integer)
         if meanAccuracy < smalleAccuracy:
             smalleAccuracy = meanAccuracy
             best_hidden_layer_size = hidden_layer_sizes
-    
-    #predict whole data
-    predyTest = mlp.predict(train_x)
+        
+        print ("SstratifyDataTrainTest3layerNN. smalleAccuracy:" , time.time()-beginTime, meanAccuracy)
 
-    print ("SstratifyDataTrainTest3layerNN. meanAccuracy:" , meanAccuracy, best_hidden_layer_size)
-    fileTestOutput3LayerNN = "../Predictions/best_3HiddenNN.csv"
+    print ("SstratifyDataTrainTest3layerNN. smalleAccuracy:" , smalleAccuracy, best_hidden_layer_size)
+    #train and test the whole data
+    mlp = MLPClassifier(best_hidden_layer_size, activation='tanh', max_iter=500, momentum=0.9, epsilon=1e-8)
+    mlp.fit(train_x, train_y_integers)
+    predyTest = mlp.predict(test_x)
+
     #output to file
+    fileTestOutput3LayerNN = "../Predictions/best_3HiddenNN.csv"
     if fileTestOutput3LayerNN != "":
         kaggle.kaggleize(predyTest, fileTestOutput3LayerNN)    
     
