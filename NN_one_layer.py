@@ -20,6 +20,7 @@ def feedForward(W, b, V, c, train_x):
     out = np.dot(hid, V) + c
     return out
 
+'''
 #mean logistic loss
 def mean_logistic_loss(weights, x, y, unflatten):
       # regularization penalty
@@ -38,10 +39,11 @@ def mean_logistic_loss(weights, x, y, unflatten):
     #class_err = np.mean(pred != true)
 
     # Computing logistic loss with l2 penalization
-    #logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-    logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) + lambda_pen * np.sum(weights**2)
+    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    #logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) #+ lambda_pen * np.sum(weights**2)
     #print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
     return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
+'''
     
 # Logistic Loss function
 def logistic_loss_batch(weights, x, y, unflatten):
@@ -61,8 +63,8 @@ def logistic_loss_batch(weights, x, y, unflatten):
     class_err = np.mean(pred != true)
 
     # Computing logistic loss with l2 penalization
-    #logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-    logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) + lambda_pen * np.sum(weights**2)
+    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    #logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) + lambda_pen * np.sum(weights**2)
 
     # returning loss. Note that outputs can only be returned in the below format
     return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
@@ -98,7 +100,8 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     #print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
     meanZeroOneLoss = mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
     
-    meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
+    grad_fun= logistic_loss_batch(weights, train_x, train_y, unflatten)
+    meanLogisticloss = grad_fun[0]/train_x.shape[0]
     return smooth_grad, weights, meanLogisticloss, meanZeroOneLoss
     
 
@@ -138,7 +141,7 @@ def nnOneLayerTrainEntry():
     assert momentum <= 1
     assert epsilon <= 1
     
-    xnEpochsLst = range(1, nEpochs+1, 3)
+    xnEpochsLst = range(1, nEpochs+1, 1)
     yLossLst = []
     for dims_hid in dims_hid_list:
         trainStart = time.time()*1000
@@ -174,7 +177,7 @@ def testDataOutputFile(weights, test_x, unflatten, fileTestOutput):
         kaggle.kaggleize(predY, fileTestOutput)    
     
 #stratify once only to test validation set
-def stratifyDataNN():
+def SstratifyDataTrainTestNN():
     data = read_image_data()
     train_x = data[0]
     train_y_integers = data[1]
@@ -195,7 +198,7 @@ def stratifyDataNN():
     momentum = 0.1
     dims_hid_list = [5, 40, 70]
     nEpochs = 1000
-    xnEpochsLst = range(1, nEpochs+1, 3)
+    xnEpochsLst = range(1, nEpochs+1, 1)
 
     smallestValidationError = 2**32
     bestParas = []
@@ -217,7 +220,7 @@ def stratifyDataNN():
             smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, xsplitTrain, ysplitTrain, ysplitTrain_integer, weights, unflatten, smooth_grad)
         
         
-        #get validation data set error
+        #get validation data set zero-one-loss-error
         zeroOnelossEach = mean_zero_one_loss(weights, xsplitTest, ysplitTest_integer, unflatten)
         
         if  zeroOnelossEach < smallestValidationError:
@@ -242,5 +245,5 @@ def stratifyDataNN():
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
        
 
-nnOneLayerTrainEntry()               # for plot
-#SstratifyDataNN()
+#nnOneLayerTrainEntry()               # for plot
+SstratifyDataTrainTestNN()
