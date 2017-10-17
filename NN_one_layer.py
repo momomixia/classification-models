@@ -247,7 +247,11 @@ def SstratifyDataTrainTestNN():
     fileTestOutputNN = "../Predictions/best_NN.csv"
     
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
-       
 
-#nnOneLayerTrainEntry()               # for plot
-SstratifyDataTrainTestNN()
+
+    
+if __name__== "__main__":
+    print ("begin train whole data and test plot and time ... for b. (1) (2)")
+    #nnOneLayerTrainEntry()               # for plot
+    print ("begin stratified data traing and test for b. (3)")
+    #SstratifyDataTrainTestNN()
