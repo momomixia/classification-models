@@ -177,7 +177,7 @@ def testDataOutputFile(weights, test_x, unflatten, fileTestOutput):
         kaggle.kaggleize(predY, fileTestOutput)    
     
 #stratify once only to test validation set
-def SstratifyDataTrainTestNN():
+def stratifyDataTrainTestNN():
     data = read_image_data()
     train_x = data[0]
     train_y_integers = data[1]
@@ -249,9 +249,10 @@ def SstratifyDataTrainTestNN():
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
 
 
-    
+
+#main entry function
 if __name__== "__main__":
     print ("begin train whole data and test plot and time ... for b. (1) (2)")
-    #nnOneLayerTrainEntry()               # for plot
+    nnOneLayerTrainEntry()               # for plot
     print ("begin stratified data traing and test for b. (3)")
-    #SstratifyDataTrainTestNN()
+    stratifyDataTrainTestNN()

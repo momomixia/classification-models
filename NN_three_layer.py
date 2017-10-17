@@ -36,25 +36,25 @@ def stratifyDataTrainTest3layerNN():
     #split
     xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest_integer = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
 
-    hidden_layer_sizes_lst = [(5,5,5), (10,10,10), (40,40,40), (70,70,70)]
+    hidden_layer_sizes_lst = [(5,5,5), (10,10,10), (40,40,40), (70,70,70), (100,100,100)]
     
-    smalleAccuracy = 2**32
+    largestAccuracy = -2**32
     best_hidden_layer_size = None
     for hidden_layer_sizes in hidden_layer_sizes_lst:
         beginTime = time.time()
-        mlp = MLPClassifier(hidden_layer_sizes, activation='tanh', max_iter=500, momentum=0.9, epsilon=1e-8)
+        mlp = MLPClassifier(hidden_layer_sizes, activation='tanh', max_iter=1000, momentum=0.9, epsilon=1e-8)
         mlp.fit(xsplitTrain,ysplitTrain_integer)
         #pred = mlp.predict(xsplitTest)              #predict validation set
         meanAccuracy = mlp.score(xsplitTest, ysplitTest_integer)
-        if meanAccuracy < smalleAccuracy:
-            smalleAccuracy = meanAccuracy
+        if meanAccuracy > largestAccuracy:
+            largestAccuracy = meanAccuracy
             best_hidden_layer_size = hidden_layer_sizes
         
         print ("SstratifyDataTrainTest3layerNN. smalleAccuracy:" , time.time()-beginTime, meanAccuracy)
 
-    print ("SstratifyDataTrainTest3layerNN. smalleAccuracy:" , smalleAccuracy, best_hidden_layer_size)
+    print ("SstratifyDataTrainTest3layerNN. smalleAccuracy:" , largestAccuracy, best_hidden_layer_size)
     #train and test the whole data
-    mlp = MLPClassifier(best_hidden_layer_size, activation='tanh', max_iter=500, momentum=0.9, epsilon=1e-8)
+    mlp = MLPClassifier(best_hidden_layer_size, activation='tanh', max_iter=1000, momentum=0.9, epsilon=1e-8)
     mlp.fit(train_x, train_y_integers)
     predyTest = mlp.predict(test_x)
 
@@ -66,3 +66,4 @@ def stratifyDataTrainTest3layerNN():
     
 if __name__== "__main__": 
     stratifyDataTrainTest3layerNN()
+    
