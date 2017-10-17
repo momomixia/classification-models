@@ -232,7 +232,7 @@ def SstratifyDataTrainTestNN():
             bestParas = [weights, unflatten, smooth_grad]
             best_dims_hid = dims_hid
     
-    print ("smallestValidationError: ", smallestValidationError, best_dims_hid)
+    print ("smallestValidationError: ", smallestValidationError, "M = ",  best_dims_hid)
     #train whole data 
     nTrainSamples = train_x.shape[0]
     train_y = np.zeros((nTrainSamples, dims_out))

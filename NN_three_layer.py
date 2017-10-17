@@ -15,8 +15,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.neural_network import MLPClassifier
 
-
 from NN_one_layer.py import read_image_data
+import kaggle
 
 
 #use stra
@@ -26,17 +26,30 @@ def SstratifyDataTrainTest3layerNN():
     train_y_integers = data[1]
     test_x = data[2]
     
-    train_x = scaler.transform(train_x)
-    test_x = scaler.transform(test_x)
+    #normalize
+    scaler = StandardScaler()
+    train_x = scaler.fit_transform(train_x)
+    test_x = scaler.fit_transform(test_x)
     
-    
+    print ("train_x. shape:" , train_x.shape)
+
+    #split
     xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest_integer = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
 
 
-    mlp = MLPClassifier(hidden_layer_sizes=(30,30,30), activation='tanh', max_iter=500, momentum=0.9, epsilon=1e-8)
+    mlp = MLPClassifier(hidden_layer_sizes=(30,30,30), activation='tanh', max_iter=200, momentum=0.9, epsilon=1e-8)
     mlp.fit(xsplitTrain,ysplitTrain_integer)
-    predyTest = mlp.predict(xsplitTest)
+    pred = mlp.predict(xsplitTest)              #predict validation set
 
-	meanZeroOneLoss = (np.mean(predyTest != ysplitTest_integer))
-    print ("x. shape:" , meanZeroOneLoss)
+    meanAccuracy = mlp.score(xsplitTest, ysplitTest_integer)
+    
+    #predict whole data
+    predyTest = mlp.predict(train_x)
 
+    print ("SstratifyDataTrainTest3layerNN. meanZeroOneLoss:" , meanAccuracy)
+    fileTestOutput3LayerNN = "../Predictions/best_3HiddenNN.csv"
+    #output to file
+    if fileTestOutput3LayerNN != "":
+        kaggle.kaggleize(predyTest, fileTestOutput3LayerNN)    
+    
+SstratifyDataTrainTest3layerNN()
