@@ -39,8 +39,8 @@ def mean_logistic_loss(weights, x, y, unflatten):
 
     # Computing logistic loss with l2 penalization
     #logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-    logistic_loss = np.log(1+np.exp(-1*out*y))
-    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
+    logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) + lambda_pen * np.sum(weights**2)
+    #print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
     return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
@@ -61,8 +61,9 @@ def logistic_loss_batch(weights, x, y, unflatten):
     class_err = np.mean(pred != true)
 
     # Computing logistic loss with l2 penalization
-    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-    
+    #logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    logistic_loss = np.sum(np.sum(np.log(1+np.exp(-1*out*y)), axis=1)) + lambda_pen * np.sum(weights**2)
+
     # returning loss. Note that outputs can only be returned in the below format
     return (logistic_loss, [autograd.util.getval(logistic_loss), autograd.util.getval(class_err)])
 
@@ -198,6 +199,7 @@ def stratifyDataNN():
 
     smallestValidationError = 2**32
     bestParas = []
+    best_dims_hid = 0
     for dims_hid in dims_hid_list:
 
         # Initializing weights
@@ -221,9 +223,9 @@ def stratifyDataNN():
         if  zeroOnelossEach < smallestValidationError:
             smallestValidationError = zeroOnelossEach
             bestParas = [weights, unflatten, smooth_grad]
+            best_dims_hid = dims_hid
     
-    
-    print ("smallestValidationError: ", smallestValidationError)
+    print ("smallestValidationError: ", smallestValidationError, best_dims_hid)
     #train whole data 
     nTrainSamples = train_x.shape[0]
     train_y = np.zeros((nTrainSamples, dims_out))
@@ -240,5 +242,5 @@ def stratifyDataNN():
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
        
 
-nnOneLayerTrainEntry()               # for plot
-#stratifyDataNN()
+#nnOneLayerTrainEntry()               # for plot
+stratifyDataNN()
