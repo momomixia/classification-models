@@ -183,6 +183,10 @@ def SstratifyDataTrainTestNN():
     train_y_integers = data[1]
     test_x = data[2]
     
+    # Make inputs approximately zero mean (improves optimization backprob algorithm in NN)
+    train_x -= .5
+    test_x  -= .5
+    
     dims_out = 4
    
     xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest_integer = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
@@ -197,7 +201,7 @@ def SstratifyDataTrainTestNN():
     # Momentum of gradients update
     momentum = 0.1
     dims_hid_list = [5, 40, 70]
-    nEpochs = 2000
+    nEpochs = 1000
     xnEpochsLst = range(1, nEpochs+1, 1)
 
     smallestValidationError = 2**32
