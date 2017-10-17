@@ -242,7 +242,18 @@ def stratifyDataTrainTestNN():
     unflatten = bestParas[1]
     smooth_grad = bestParas[2]
     
-    smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+    W = np.random.randn(dims_in, best_dims_hid)            #best_dims_hid
+    b = np.random.randn(best_dims_hid)
+    V = np.random.randn(best_dims_hid, dims_out)
+    c = np.random.randn(dims_out)
+    smooth_grad = 0
+    # Compress all weights into one weight vector using autograd's flatten
+    all_weights = (W, b, V, c)
+    weights, unflatten = flatten(all_weights)
+    meanZeroOneLoss = 0
+
+    for epo in xnEpochsLst: #range(0, nEpochs):
+        smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
 
     fileTestOutputNN = "../Predictions/best_NN.csv"
     
@@ -253,6 +264,6 @@ def stratifyDataTrainTestNN():
 #main entry function
 if __name__== "__main__":
     print ("begin train whole data and test plot and time ... for b. (1) (2)")
-    nnOneLayerTrainEntry()               # for plot
+    #nnOneLayerTrainEntry()               # for plot
     print ("begin stratified data traing and test for b. (3)")
     stratifyDataTrainTestNN()
