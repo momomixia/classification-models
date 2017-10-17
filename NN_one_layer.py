@@ -242,5 +242,5 @@ def stratifyDataNN():
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
        
 
-#nnOneLayerTrainEntry()               # for plot
-stratifyDataNN()
+nnOneLayerTrainEntry()               # for plot
+#SstratifyDataNN()
