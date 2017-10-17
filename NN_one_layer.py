@@ -159,7 +159,7 @@ def nnOneLayerTrainEntry():
     plotNN(xnEpochsLst, yLossLst, labels)
 
 #stratify once only to test validation set
-def stratifyDataNN(train_x, train_y):
+def stratifyDataNN():
     data = read_image_data()
     train_x = data[0]
     train_y_integers = data[1]
@@ -167,21 +167,21 @@ def stratifyDataNN(train_x, train_y):
     
     dims_in = train_x.shape[1]
     dims_out = 4
-    nTrainSamples = train_x.shape[0]
-    train_y = np.zeros((nTrainSamples, dims_out))
-    train_y[np.arange(nTrainSamples), train_y_integers] = 1
+   
     
-    xTrain, xTest, yTrain, yTest = train_test_split(train_x, train_y, test_size=0.2, random_state=0, stratify=train_y)
+    xTrain, xTest, yTrain_integer, yTest = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
        
     dims_in = xTrain.shape[1]
-
+    nTrainSamples = xTrain.shape[0]
+    yTrain = np.zeros((nTrainSamples, dims_out))
+    yTrain[np.arange(nTrainSamples), yTrain_integer] = 1
 
     # Learning rate
     epsilon = 0.0001
     # Momentum of gradients update
     momentum = 0.1
     dims_hid_list = [5, 40, 70]
-    
+    nEpochs = 1000
     xnEpochsLst = range(1, nEpochs+1, 3)
 
     smallestValidationError = 2**32
@@ -199,8 +199,9 @@ def stratifyDataNN(train_x, train_y):
         meanZeroOneLoss = 0
 
         for epo in xnEpochsLst: #range(0, nEpochs):
-            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, xTrain, yTrain, yTrain_integer, weights, unflatten, smooth_grad)
         
         
 
-nnOneLayerTrainEntry()
+#nnOneLayerTrainEntry()
+stratifyDataNN()
