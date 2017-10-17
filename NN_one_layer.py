@@ -38,7 +38,7 @@ def mean_logistic_loss(weights, x, y, unflatten):
     # Computing logistic loss with l2 penalization
     logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
     
-    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss))
+    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
     return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
@@ -92,7 +92,7 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
     weights = weights - epsilon * smooth_grad
     
-    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    #print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
     meanZeroOneLoss = mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
     
     meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
@@ -154,7 +154,7 @@ def nnOneLayerTrainEntry():
             smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
-        
+        print ("YLossLsttttttt: ", yLossLst)
         print ( "NN time for different M: ", dims_hid, time.time()*1000 - trainStart)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
@@ -167,16 +167,14 @@ def stratifyDataNN():
     train_y_integers = data[1]
     test_x = data[2]
     
-    dims_in = train_x.shape[1]
     dims_out = 4
    
-    
-    xTrain, xTest, yTrain_integer, yTest = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
+    xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
        
-    dims_in = xTrain.shape[1]
-    nTrainSamples = xTrain.shape[0]
-    yTrain = np.zeros((nTrainSamples, dims_out))
-    yTrain[np.arange(nTrainSamples), yTrain_integer] = 1
+    dims_in = xsplitTrain.shape[1]
+    nTrainSamples = xsplitTrain.shape[0]
+    ysplitTrain = np.zeros((nTrainSamples, dims_out))
+    ysplitTrain[np.arange(nTrainSamples), ysplitTrain_integer] = 1
 
     # Learning rate
     epsilon = 0.0001
@@ -201,7 +199,7 @@ def stratifyDataNN():
         meanZeroOneLoss = 0
 
         for epo in xnEpochsLst: #range(0, nEpochs):
-            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, xTrain, yTrain, yTrain_integer, weights, unflatten, smooth_grad)
+            smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, xsplitTrain, ysplitTrain, ysplitTrain_integer, weights, unflatten, smooth_grad)
         
         
 
