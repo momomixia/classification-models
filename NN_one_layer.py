@@ -4,6 +4,8 @@ from autograd.util import flatten
 from plotting import plotNN
 import time
 from sklearn.model_selection import train_test_split
+import kaggle
+
 
 # Function to compute classification accuracy
 def mean_zero_one_loss(weights, x, y_integers, unflatten):
@@ -36,9 +38,9 @@ def mean_logistic_loss(weights, x, y, unflatten):
     #class_err = np.mean(pred != true)
 
     # Computing logistic loss with l2 penalization
-    logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
-    
-    #print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
+    #logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
+    logistic_loss = np.log(1+np.exp(-1*out*y))
+    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
     return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
@@ -159,7 +161,17 @@ def nnOneLayerTrainEntry():
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
     plotNN(xnEpochsLst, yLossLst, labels)
-
+    
+    
+#test stage use beest model from trained model   
+def testDataOutputFile(weights, test_x, unflatten, fileTestOutput):  
+    (W, b, V, c) = unflatten(weights)
+    out = feedForward(W, b, V, c, test_x)
+    predY= np.argmax(out, axis=1)
+    #output to file
+    if fileTestOutput != "":
+        kaggle.kaggleize(predY, fileTestOutput)    
+    
 #stratify once only to test validation set
 def stratifyDataNN():
     data = read_image_data()
@@ -185,6 +197,7 @@ def stratifyDataNN():
     xnEpochsLst = range(1, nEpochs+1, 3)
 
     smallestValidationError = 2**32
+    bestParas = []
     for dims_hid in dims_hid_list:
 
         # Initializing weights
@@ -203,17 +216,29 @@ def stratifyDataNN():
         
         
         #get validation data set error
-        zeroOnelossEach = mean_zero_one_loss(weights, xsplitTest, ysplitTest_integer, unflatten):
+        zeroOnelossEach = mean_zero_one_loss(weights, xsplitTest, ysplitTest_integer, unflatten)
         
-        if 
-        #train whole data 
-        nTrainSamples = train_x.shape[0]
-        train_y = np.zeros((nTrainSamples, dims_out))
-        train_y[np.arange(nTrainSamples), train_y_integers] = 1
+        if  zeroOnelossEach < smallestValidationError:
+            smallestValidationError = zeroOnelossEach
+            bestParas = [weights, unflatten, smooth_grad]
     
-        smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+    
+    print ("smallestValidationError: ", smallestValidationError)
+    #train whole data 
+    nTrainSamples = train_x.shape[0]
+    train_y = np.zeros((nTrainSamples, dims_out))
+    train_y[np.arange(nTrainSamples), train_y_integers] = 1
+    
+    weights = bestParas[0]
+    unflatten = bestParas[1]
+    smooth_grad = bestParas[2]
+    
+    smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
 
-        
+    fileTestOutputNN = "../Predictions/best_NN.csv"
+    
+    testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
+       
 
 nnOneLayerTrainEntry()               # for plot
 #stratifyDataNN()
