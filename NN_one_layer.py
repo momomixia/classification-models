@@ -92,7 +92,7 @@ def trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unfl
     smooth_grad = (1 - momentum) * smooth_grad + momentum * weight_gradients
     weights = weights - epsilon * smooth_grad
     
-    #print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
+    print('Train accuracy =', 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten))
     meanZeroOneLoss = 1-mean_zero_one_loss(weights, train_x, train_y_integers, unflatten)
     
     meanLogisticloss= mean_logistic_loss(weights, train_x, train_y, unflatten)
@@ -173,6 +173,9 @@ def stratifyDataNN(train_x, train_y):
     
     xTrain, xTest, yTrain, yTest = train_test_split(train_x, train_y, test_size=0.2, random_state=0, stratify=train_y)
        
+    dims_in = xTrain.shape[1]
+
+
     # Learning rate
     epsilon = 0.0001
     # Momentum of gradients update
