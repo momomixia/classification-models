@@ -41,7 +41,7 @@ def stratifyDataTrainTest3layerNN():
     smalleAccuracy = 2**32
     best_hidden_layer_size = None
     for hidden_layer_sizes in hidden_layer_sizes_lst:
-        mlp = MLPClassifier(hidden_layer_sizes=(5,5,5), activation='tanh', max_iter=200, momentum=0.9, epsilon=1e-8)
+        mlp = MLPClassifier(hidden_layer_sizes, activation='tanh', max_iter=200, momentum=0.9, epsilon=1e-8)
         mlp.fit(xsplitTrain,ysplitTrain_integer)
         #pred = mlp.predict(xsplitTest)              #predict validation set
         meanAccuracy = mlp.score(xsplitTest, ysplitTest_integer)
