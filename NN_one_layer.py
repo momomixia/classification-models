@@ -38,7 +38,7 @@ def mean_logistic_loss(weights, x, y, unflatten):
     # Computing logistic loss with l2 penalization
     logistic_loss = np.sum(-np.sum(out * y, axis=1) + np.log(np.sum(np.exp(out),axis=1))) + lambda_pen * np.sum(weights**2)
     
-    print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
+    #print ("x. shape:" , logistic_loss, x.shape[0], autograd.util.getval(logistic_loss), logistic_loss/x.shape[0])
     return logistic_loss/x.shape[0]       #np.mean(logistic_loss)
     
 # Logistic Loss function
@@ -119,7 +119,7 @@ def nnOneLayerTrainEntry():
     # Momentum of gradients update
     momentum = 0.1
     # Number of epochs
-    nEpochs = 1000             #10
+    nEpochs = 1000            #10
     # Number of train examples
     nTrainSamples = train_x.shape[0]
     # Number of input dimensions
@@ -154,7 +154,7 @@ def nnOneLayerTrainEntry():
             smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
             yLossInns.append(meanLogisticloss)
         yLossLst.append(yLossInns)
-        print ("YLossLsttttttt: ", yLossLst)
+        #print ("YLossLsttttttt: ", yLossLst)
         print ( "NN time for different M: ", dims_hid, time.time()*1000 - trainStart)
     labels = [ "M = " + str(dims_hid) for dims_hid in dims_hid_list]
     #print('Train yLossInns =', xnEpochsLst, yLossLst)
@@ -169,7 +169,7 @@ def stratifyDataNN():
     
     dims_out = 4
    
-    xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
+    xsplitTrain, xsplitTest, ysplitTrain_integer, ysplitTest_integer = train_test_split(train_x, train_y_integers, test_size=0.2, random_state=0, stratify=train_y_integers)
        
     dims_in = xsplitTrain.shape[1]
     nTrainSamples = xsplitTrain.shape[0]
@@ -201,6 +201,18 @@ def stratifyDataNN():
         for epo in xnEpochsLst: #range(0, nEpochs):
             smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, xsplitTrain, ysplitTrain, ysplitTrain_integer, weights, unflatten, smooth_grad)
         
+        
+        #get validation data set error
+        zeroOnelossEach = mean_zero_one_loss(weights, xsplitTest, ysplitTest_integer, unflatten):
+        
+        if 
+        #train whole data 
+        nTrainSamples = train_x.shape[0]
+        train_y = np.zeros((nTrainSamples, dims_out))
+        train_y[np.arange(nTrainSamples), train_y_integers] = 1
+    
+        smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
+
         
 
 nnOneLayerTrainEntry()               # for plot
