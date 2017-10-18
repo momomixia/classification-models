@@ -226,7 +226,7 @@ def stratifyDataTrainTestNN():
         
         #get validation data set zero-one-loss-error
         zeroOnelossEach = mean_zero_one_loss(weights, xsplitTest, ysplitTest_integer, unflatten)
-        
+        print ("zeroOnelossEach: ", zeroOnelossEach)
         if  zeroOnelossEach < smallestValidationError:
             smallestValidationError = zeroOnelossEach
             bestParas = [weights, unflatten, smooth_grad]
@@ -244,7 +244,7 @@ def stratifyDataTrainTestNN():
 
     smooth_grad, weights, meanLogisticloss, meanZeroOneLoss = trainNN(epsilon, momentum, train_x, train_y, train_y_integers, weights, unflatten, smooth_grad)
 
-    fileTestOutputNN = "../Predictions/best_NN.csv"
+    fileTestOutputNN = "../Predictions/best_NN2.csv"
     
     testDataOutputFile(weights, test_x, unflatten, fileTestOutputNN)
 
@@ -253,6 +253,6 @@ def stratifyDataTrainTestNN():
 #main entry function
 if __name__== "__main__":
     print ("begin train whole data and test plot and time ... for b. (1) (2)")
-    nnOneLayerTrainEntry()               # for plot
+    #nnOneLayerTrainEntry()               # for plot
     print ("begin stratified data traing and test for b. (3)")
     stratifyDataTrainTestNN()
