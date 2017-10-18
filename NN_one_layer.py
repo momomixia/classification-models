@@ -253,6 +253,6 @@ def stratifyDataTrainTestNN():
 #main entry function
 if __name__== "__main__":
     print ("begin train whole data and test plot and time ... for b. (1) (2)")
-    #nnOneLayerTrainEntry()               # for plot
+    nnOneLayerTrainEntry()               # for plot
     print ("begin stratified data traing and test for b. (3)")
     stratifyDataTrainTestNN()

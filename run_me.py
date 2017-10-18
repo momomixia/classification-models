@@ -138,7 +138,7 @@ class classficationHw2(object):
         kfold = 5
         fileTestOutputDT  = "../Predictions/best_DT.csv"
         timeBegin = time.time()
-        #self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
+        self.executeTrainDT(dataImage, kfold, depthLst, fileTestOutputDT)
         timeEnd = time.time()
         print ("time spent on DT: ", timeEnd - timeBegin)
 
@@ -146,22 +146,22 @@ class classficationHw2(object):
         print (" -----Begin knn classification CV--------")
         knnLst = [3, 5, 7, 9, 11]              #range(1, 20) try different alpha from test
         kfold = 5
-        fileTestOutputDT  = "../Predictions/best_KNN.csv"
+        fileTestOutputKNN  = "../Predictions/best_KNN.csv"
         
         timeBegin = time.time()
-        self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputDT)
+        self.executeTrainKNN(dataImage, kfold, knnLst, fileTestOutputKNN)
         timeEnd = time.time()
         print ("time spent on KNN: ", timeEnd - timeBegin)
 
-        print (" -----Begin knn classification CV--------")
+        print (" -----Begin LR classification CV--------")
         alphaLst = [1e-6, 1e-4, 1e-2, 1, 10]               #range(1, 20) try different alpha from test
         kfold = 5
-        fileTestOutputDT  = "../Predictions/best_LR.csv"
+        fileTestOutputLR  = "../Predictions/best_LR.csv"
         
         timeBegin = time.time()
-        #self.executeTrainLinearReg(dataImage, kfold, alphaLst, fileTestOutputDT)
+        self.executeTrainLinearReg(dataImage, kfold, alphaLst, fileTestOutputLR)
         timeEnd = time.time()
-        print ("time spent on linear regression: ", timeEnd - timeBegin)
+        print ("time spent on linear regression classifer: ", timeEnd - timeBegin)
         
 
 def main():
@@ -175,23 +175,4 @@ def main():
 if __name__== "__main__":
   main()
 
-
-    
-'''
-############################################################################
-train_x, train_y, test_x = read_image_data()
-print('Train=', train_x.shape)
-print('Test=', test_x.shape)
-
-# Create dummy test output values to compute accuracy
-test_y = np.ones(test_x.shape[0])
-predicted_y = np.random.randint(0, 4, test_x.shape[0])
-print('DUMMY Accuracy=%0.4f' % accuracy_score(test_y, predicted_y, normalize=True))
-
-# Output file location
-file_name = '../Predictions/best.csv'
-# Writing output in Kaggle format
-print('Writing output to ', file_name)
-kaggle.kaggleize(predicted_y, file_name)
-'''
 
