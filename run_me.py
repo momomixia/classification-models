@@ -168,7 +168,7 @@ def main():
     
     classifyHwObj = classficationHw2()
     
-    #for assigment querstion 1
+    #for assigment querstion 1,2,3
     classifyHwObj.predictDifferentModels()
     
     
